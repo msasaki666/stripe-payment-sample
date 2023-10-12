@@ -1,0 +1,6 @@
+[psql]
+dbname = "app_database"
+host = "db"
+user = "postgres"
+pass = "postgres"
+sslmode = "disable"
