@@ -4,9 +4,9 @@
 package models
 
 var TableNames = struct {
+	PaymentStripe    string
 	SchemaMigrations string
-	Users            string
 }{
+	PaymentStripe:    "payment_stripe",
 	SchemaMigrations: "schema_migrations",
-	Users:            "users",
 }

@@ -1,0 +1,6 @@
+CREATE TABLE payment_stripe (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    link VARCHAR(255) NOT NULL
+);

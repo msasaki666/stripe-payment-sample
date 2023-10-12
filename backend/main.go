@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	_ "github.com/lib/pq"
 	"net/http"
+
+	_ "github.com/lib/pq"
 
 	"github.com/labstack/echo/v4"
 	"github.com/msasaki666/backend/models"
@@ -23,13 +23,13 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-	e.GET("/users", func(c echo.Context) error {
-		num, err := models.Users().Count(context.Background(), db)
+	e.GET("/payment_stripes", func(c echo.Context) error {
+		p, err := models.PaymentStripes().All(context.Background(), db)
 		if err != nil {
 			c.Logger().Error(err)
 			return err
 		}
-		return c.String(http.StatusOK, fmt.Sprint(num))
+		return c.JSONPretty(http.StatusOK, p, "  ")
 	})
 	e.Logger.Fatal(e.Start(":1323"))
 }

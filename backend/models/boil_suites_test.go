@@ -12,65 +12,65 @@ import "testing"
 // It does NOT run each operation group in parallel.
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripes)
 	t.Run("SchemaMigrations", testSchemaMigrations)
-	t.Run("Users", testUsers)
 }
 
 func TestDelete(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesDelete)
 	t.Run("SchemaMigrations", testSchemaMigrationsDelete)
-	t.Run("Users", testUsersDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesQueryDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsQueryDeleteAll)
-	t.Run("Users", testUsersQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesSliceDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceDeleteAll)
-	t.Run("Users", testUsersSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesExists)
 	t.Run("SchemaMigrations", testSchemaMigrationsExists)
-	t.Run("Users", testUsersExists)
 }
 
 func TestFind(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesFind)
 	t.Run("SchemaMigrations", testSchemaMigrationsFind)
-	t.Run("Users", testUsersFind)
 }
 
 func TestBind(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesBind)
 	t.Run("SchemaMigrations", testSchemaMigrationsBind)
-	t.Run("Users", testUsersBind)
 }
 
 func TestOne(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesOne)
 	t.Run("SchemaMigrations", testSchemaMigrationsOne)
-	t.Run("Users", testUsersOne)
 }
 
 func TestAll(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsAll)
-	t.Run("Users", testUsersAll)
 }
 
 func TestCount(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesCount)
 	t.Run("SchemaMigrations", testSchemaMigrationsCount)
-	t.Run("Users", testUsersCount)
 }
 
 func TestHooks(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesHooks)
 	t.Run("SchemaMigrations", testSchemaMigrationsHooks)
-	t.Run("Users", testUsersHooks)
 }
 
 func TestInsert(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesInsert)
+	t.Run("PaymentStripes", testPaymentStripesInsertWhitelist)
 	t.Run("SchemaMigrations", testSchemaMigrationsInsert)
 	t.Run("SchemaMigrations", testSchemaMigrationsInsertWhitelist)
-	t.Run("Users", testUsersInsert)
-	t.Run("Users", testUsersInsertWhitelist)
 }
 
 // TestToOne tests cannot be run in parallel
@@ -114,26 +114,26 @@ func TestToManySet(t *testing.T) {}
 func TestToManyRemove(t *testing.T) {}
 
 func TestReload(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesReload)
 	t.Run("SchemaMigrations", testSchemaMigrationsReload)
-	t.Run("Users", testUsersReload)
 }
 
 func TestReloadAll(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesReloadAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsReloadAll)
-	t.Run("Users", testUsersReloadAll)
 }
 
 func TestSelect(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesSelect)
 	t.Run("SchemaMigrations", testSchemaMigrationsSelect)
-	t.Run("Users", testUsersSelect)
 }
 
 func TestUpdate(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesUpdate)
 	t.Run("SchemaMigrations", testSchemaMigrationsUpdate)
-	t.Run("Users", testUsersUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
+	t.Run("PaymentStripes", testPaymentStripesSliceUpdateAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceUpdateAll)
-	t.Run("Users", testUsersSliceUpdateAll)
 }
