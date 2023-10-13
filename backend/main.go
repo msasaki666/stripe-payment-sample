@@ -37,6 +37,7 @@ func main() {
 		return c.JSONPretty(http.StatusOK, p, "  ")
 	})
 	e.POST("/create-checkout-session", createCheckoutSession)
+	e.Any("/webhook", echo.WrapHandler(http.HandlerFunc(handleWebhook)))
 	e.Logger.Fatal(e.Start(":1323"))
 }
 
