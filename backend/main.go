@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 
+	"github.com/caarlos0/env/v9"
 	_ "github.com/lib/pq"
 	"github.com/stripe/stripe-go/v75"
 	"github.com/stripe/stripe-go/v75/checkout/session"
@@ -14,9 +16,30 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+type config struct {
+	StripeKey string `env:"STRIPE_KEY"`
+}
+
 func main() {
-	// stripeのテスト用のキー
-	stripe.Key = "sk_test_09l3shTSTKHYCzzZZsiLl2vA"
+	cfg := config{}
+	err := env.Parse(&cfg)
+	if e, ok := err.(*env.AggregateError); ok {
+		for _, er := range e.Errors {
+			switch v := er.(type) {
+			case env.ParseError:
+				// handle it
+			case env.NotStructPtrError:
+				// handle it
+			case env.NoParserError:
+				// handle it
+			case env.NoSupportedTagOptionError:
+				// handle it
+			default:
+				fmt.Printf("Unknown error type %v", v)
+			}
+		}
+	}
+	stripe.Key = cfg.StripeKey
 
 	db, err := sql.Open("postgres", "host=db port=5432 user=postgres password=postgres dbname=app_database sslmode=disable")
 	if err != nil {

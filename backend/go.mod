@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/caarlos0/env/v9 v9.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
