@@ -69,13 +69,8 @@ func createCheckoutSession(c echo.Context) (err error) {
 		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
-					Currency: stripe.String("jpy"),
-					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-						Name: stripe.String("T-shirt"),
-					},
-					UnitAmount: stripe.Int64(2000),
-				},
+				// 料金IDを指定することで、既存の商品のセッションを開始できる
+				Price:    stripe.String("price_1NveyfAj9ehS6HaZQ1SPdae2"),
 				Quantity: stripe.Int64(1),
 			},
 		},
