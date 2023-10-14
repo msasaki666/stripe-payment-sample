@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/caarlos0/env/v9"
 	_ "github.com/lib/pq"
@@ -119,6 +120,7 @@ func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*
 		SuccessURL: stripe.String(successURL),
 		CancelURL:  stripe.String(cancelURL),
 		Locale:     stripe.String("auto"),
+		ExpiresAt:  stripe.Int64(time.Now().Add(30 * time.Minute).Unix()),
 	}
 
 	s, err := session.New(params)
