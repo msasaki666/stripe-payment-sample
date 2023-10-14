@@ -6,7 +6,13 @@ package models
 import "testing"
 
 func TestUpsert(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesUpsert)
+	t.Run("Customers", testCustomersUpsert)
 
 	t.Run("SchemaMigrations", testSchemaMigrationsUpsert)
+
+	t.Run("StripePrices", testStripePricesUpsert)
+
+	t.Run("StripeProducts", testStripeProductsUpsert)
+
+	t.Run("StripeRecurrings", testStripeRecurringsUpsert)
 }

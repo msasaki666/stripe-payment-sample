@@ -12,65 +12,104 @@ import "testing"
 // It does NOT run each operation group in parallel.
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripes)
+	t.Run("Customers", testCustomers)
 	t.Run("SchemaMigrations", testSchemaMigrations)
+	t.Run("StripePrices", testStripePrices)
+	t.Run("StripeProducts", testStripeProducts)
+	t.Run("StripeRecurrings", testStripeRecurrings)
 }
 
 func TestDelete(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesDelete)
+	t.Run("Customers", testCustomersDelete)
 	t.Run("SchemaMigrations", testSchemaMigrationsDelete)
+	t.Run("StripePrices", testStripePricesDelete)
+	t.Run("StripeProducts", testStripeProductsDelete)
+	t.Run("StripeRecurrings", testStripeRecurringsDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesQueryDeleteAll)
+	t.Run("Customers", testCustomersQueryDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsQueryDeleteAll)
+	t.Run("StripePrices", testStripePricesQueryDeleteAll)
+	t.Run("StripeProducts", testStripeProductsQueryDeleteAll)
+	t.Run("StripeRecurrings", testStripeRecurringsQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesSliceDeleteAll)
+	t.Run("Customers", testCustomersSliceDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceDeleteAll)
+	t.Run("StripePrices", testStripePricesSliceDeleteAll)
+	t.Run("StripeProducts", testStripeProductsSliceDeleteAll)
+	t.Run("StripeRecurrings", testStripeRecurringsSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesExists)
+	t.Run("Customers", testCustomersExists)
 	t.Run("SchemaMigrations", testSchemaMigrationsExists)
+	t.Run("StripePrices", testStripePricesExists)
+	t.Run("StripeProducts", testStripeProductsExists)
+	t.Run("StripeRecurrings", testStripeRecurringsExists)
 }
 
 func TestFind(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesFind)
+	t.Run("Customers", testCustomersFind)
 	t.Run("SchemaMigrations", testSchemaMigrationsFind)
+	t.Run("StripePrices", testStripePricesFind)
+	t.Run("StripeProducts", testStripeProductsFind)
+	t.Run("StripeRecurrings", testStripeRecurringsFind)
 }
 
 func TestBind(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesBind)
+	t.Run("Customers", testCustomersBind)
 	t.Run("SchemaMigrations", testSchemaMigrationsBind)
+	t.Run("StripePrices", testStripePricesBind)
+	t.Run("StripeProducts", testStripeProductsBind)
+	t.Run("StripeRecurrings", testStripeRecurringsBind)
 }
 
 func TestOne(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesOne)
+	t.Run("Customers", testCustomersOne)
 	t.Run("SchemaMigrations", testSchemaMigrationsOne)
+	t.Run("StripePrices", testStripePricesOne)
+	t.Run("StripeProducts", testStripeProductsOne)
+	t.Run("StripeRecurrings", testStripeRecurringsOne)
 }
 
 func TestAll(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesAll)
+	t.Run("Customers", testCustomersAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsAll)
+	t.Run("StripePrices", testStripePricesAll)
+	t.Run("StripeProducts", testStripeProductsAll)
+	t.Run("StripeRecurrings", testStripeRecurringsAll)
 }
 
 func TestCount(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesCount)
+	t.Run("Customers", testCustomersCount)
 	t.Run("SchemaMigrations", testSchemaMigrationsCount)
+	t.Run("StripePrices", testStripePricesCount)
+	t.Run("StripeProducts", testStripeProductsCount)
+	t.Run("StripeRecurrings", testStripeRecurringsCount)
 }
 
 func TestHooks(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesHooks)
+	t.Run("Customers", testCustomersHooks)
 	t.Run("SchemaMigrations", testSchemaMigrationsHooks)
+	t.Run("StripePrices", testStripePricesHooks)
+	t.Run("StripeProducts", testStripeProductsHooks)
+	t.Run("StripeRecurrings", testStripeRecurringsHooks)
 }
 
 func TestInsert(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesInsert)
-	t.Run("PaymentStripes", testPaymentStripesInsertWhitelist)
+	t.Run("Customers", testCustomersInsert)
+	t.Run("Customers", testCustomersInsertWhitelist)
 	t.Run("SchemaMigrations", testSchemaMigrationsInsert)
 	t.Run("SchemaMigrations", testSchemaMigrationsInsertWhitelist)
+	t.Run("StripePrices", testStripePricesInsert)
+	t.Run("StripePrices", testStripePricesInsertWhitelist)
+	t.Run("StripeProducts", testStripeProductsInsert)
+	t.Run("StripeProducts", testStripeProductsInsertWhitelist)
+	t.Run("StripeRecurrings", testStripeRecurringsInsert)
+	t.Run("StripeRecurrings", testStripeRecurringsInsertWhitelist)
 }
 
 // TestToOne tests cannot be run in parallel
@@ -114,26 +153,41 @@ func TestToManySet(t *testing.T) {}
 func TestToManyRemove(t *testing.T) {}
 
 func TestReload(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesReload)
+	t.Run("Customers", testCustomersReload)
 	t.Run("SchemaMigrations", testSchemaMigrationsReload)
+	t.Run("StripePrices", testStripePricesReload)
+	t.Run("StripeProducts", testStripeProductsReload)
+	t.Run("StripeRecurrings", testStripeRecurringsReload)
 }
 
 func TestReloadAll(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesReloadAll)
+	t.Run("Customers", testCustomersReloadAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsReloadAll)
+	t.Run("StripePrices", testStripePricesReloadAll)
+	t.Run("StripeProducts", testStripeProductsReloadAll)
+	t.Run("StripeRecurrings", testStripeRecurringsReloadAll)
 }
 
 func TestSelect(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesSelect)
+	t.Run("Customers", testCustomersSelect)
 	t.Run("SchemaMigrations", testSchemaMigrationsSelect)
+	t.Run("StripePrices", testStripePricesSelect)
+	t.Run("StripeProducts", testStripeProductsSelect)
+	t.Run("StripeRecurrings", testStripeRecurringsSelect)
 }
 
 func TestUpdate(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesUpdate)
+	t.Run("Customers", testCustomersUpdate)
 	t.Run("SchemaMigrations", testSchemaMigrationsUpdate)
+	t.Run("StripePrices", testStripePricesUpdate)
+	t.Run("StripeProducts", testStripeProductsUpdate)
+	t.Run("StripeRecurrings", testStripeRecurringsUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
-	t.Run("PaymentStripes", testPaymentStripesSliceUpdateAll)
+	t.Run("Customers", testCustomersSliceUpdateAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceUpdateAll)
+	t.Run("StripePrices", testStripePricesSliceUpdateAll)
+	t.Run("StripeProducts", testStripeProductsSliceUpdateAll)
+	t.Run("StripeRecurrings", testStripeRecurringsSliceUpdateAll)
 }

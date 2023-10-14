@@ -21,39 +21,44 @@ import (
 	"github.com/volatiletech/strmangle"
 )
 
-// PaymentStripe is an object representing the database table.
-type PaymentStripe struct {
-	ID        int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	Link      string    `boil:"link" json:"link" toml:"link" yaml:"link"`
+// Customer is an object representing the database table.
+type Customer struct {
+	ID               int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CreatedAt        time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt        time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	IPUID            string    `boil:"ip_uid" json:"ip_uid" toml:"ip_uid" yaml:"ip_uid"`
+	StripeCustomerID string    `boil:"stripe_customer_id" json:"stripe_customer_id" toml:"stripe_customer_id" yaml:"stripe_customer_id"`
 
-	R *paymentStripeR `boil:"-" json:"-" toml:"-" yaml:"-"`
-	L paymentStripeL  `boil:"-" json:"-" toml:"-" yaml:"-"`
+	R *customerR `boil:"-" json:"-" toml:"-" yaml:"-"`
+	L customerL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
-var PaymentStripeColumns = struct {
-	ID        string
-	CreatedAt string
-	UpdatedAt string
-	Link      string
+var CustomerColumns = struct {
+	ID               string
+	CreatedAt        string
+	UpdatedAt        string
+	IPUID            string
+	StripeCustomerID string
 }{
-	ID:        "id",
-	CreatedAt: "created_at",
-	UpdatedAt: "updated_at",
-	Link:      "link",
+	ID:               "id",
+	CreatedAt:        "created_at",
+	UpdatedAt:        "updated_at",
+	IPUID:            "ip_uid",
+	StripeCustomerID: "stripe_customer_id",
 }
 
-var PaymentStripeTableColumns = struct {
-	ID        string
-	CreatedAt string
-	UpdatedAt string
-	Link      string
+var CustomerTableColumns = struct {
+	ID               string
+	CreatedAt        string
+	UpdatedAt        string
+	IPUID            string
+	StripeCustomerID string
 }{
-	ID:        "payment_stripe.id",
-	CreatedAt: "payment_stripe.created_at",
-	UpdatedAt: "payment_stripe.updated_at",
-	Link:      "payment_stripe.link",
+	ID:               "customers.id",
+	CreatedAt:        "customers.created_at",
+	UpdatedAt:        "customers.updated_at",
+	IPUID:            "customers.ip_uid",
+	StripeCustomerID: "customers.stripe_customer_id",
 }
 
 // Generated where
@@ -129,65 +134,67 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-var PaymentStripeWhere = struct {
-	ID        whereHelperint64
-	CreatedAt whereHelpertime_Time
-	UpdatedAt whereHelpertime_Time
-	Link      whereHelperstring
+var CustomerWhere = struct {
+	ID               whereHelperint64
+	CreatedAt        whereHelpertime_Time
+	UpdatedAt        whereHelpertime_Time
+	IPUID            whereHelperstring
+	StripeCustomerID whereHelperstring
 }{
-	ID:        whereHelperint64{field: "\"payment_stripe\".\"id\""},
-	CreatedAt: whereHelpertime_Time{field: "\"payment_stripe\".\"created_at\""},
-	UpdatedAt: whereHelpertime_Time{field: "\"payment_stripe\".\"updated_at\""},
-	Link:      whereHelperstring{field: "\"payment_stripe\".\"link\""},
+	ID:               whereHelperint64{field: "\"customers\".\"id\""},
+	CreatedAt:        whereHelpertime_Time{field: "\"customers\".\"created_at\""},
+	UpdatedAt:        whereHelpertime_Time{field: "\"customers\".\"updated_at\""},
+	IPUID:            whereHelperstring{field: "\"customers\".\"ip_uid\""},
+	StripeCustomerID: whereHelperstring{field: "\"customers\".\"stripe_customer_id\""},
 }
 
-// PaymentStripeRels is where relationship names are stored.
-var PaymentStripeRels = struct {
+// CustomerRels is where relationship names are stored.
+var CustomerRels = struct {
 }{}
 
-// paymentStripeR is where relationships are stored.
-type paymentStripeR struct {
+// customerR is where relationships are stored.
+type customerR struct {
 }
 
 // NewStruct creates a new relationship struct
-func (*paymentStripeR) NewStruct() *paymentStripeR {
-	return &paymentStripeR{}
+func (*customerR) NewStruct() *customerR {
+	return &customerR{}
 }
 
-// paymentStripeL is where Load methods for each relationship are stored.
-type paymentStripeL struct{}
+// customerL is where Load methods for each relationship are stored.
+type customerL struct{}
 
 var (
-	paymentStripeAllColumns            = []string{"id", "created_at", "updated_at", "link"}
-	paymentStripeColumnsWithoutDefault = []string{"created_at", "updated_at", "link"}
-	paymentStripeColumnsWithDefault    = []string{"id"}
-	paymentStripePrimaryKeyColumns     = []string{"id"}
-	paymentStripeGeneratedColumns      = []string{}
+	customerAllColumns            = []string{"id", "created_at", "updated_at", "ip_uid", "stripe_customer_id"}
+	customerColumnsWithoutDefault = []string{"created_at", "updated_at", "ip_uid", "stripe_customer_id"}
+	customerColumnsWithDefault    = []string{"id"}
+	customerPrimaryKeyColumns     = []string{"id"}
+	customerGeneratedColumns      = []string{}
 )
 
 type (
-	// PaymentStripeSlice is an alias for a slice of pointers to PaymentStripe.
-	// This should almost always be used instead of []PaymentStripe.
-	PaymentStripeSlice []*PaymentStripe
-	// PaymentStripeHook is the signature for custom PaymentStripe hook methods
-	PaymentStripeHook func(context.Context, boil.ContextExecutor, *PaymentStripe) error
+	// CustomerSlice is an alias for a slice of pointers to Customer.
+	// This should almost always be used instead of []Customer.
+	CustomerSlice []*Customer
+	// CustomerHook is the signature for custom Customer hook methods
+	CustomerHook func(context.Context, boil.ContextExecutor, *Customer) error
 
-	paymentStripeQuery struct {
+	customerQuery struct {
 		*queries.Query
 	}
 )
 
 // Cache for insert, update and upsert
 var (
-	paymentStripeType                 = reflect.TypeOf(&PaymentStripe{})
-	paymentStripeMapping              = queries.MakeStructMapping(paymentStripeType)
-	paymentStripePrimaryKeyMapping, _ = queries.BindMapping(paymentStripeType, paymentStripeMapping, paymentStripePrimaryKeyColumns)
-	paymentStripeInsertCacheMut       sync.RWMutex
-	paymentStripeInsertCache          = make(map[string]insertCache)
-	paymentStripeUpdateCacheMut       sync.RWMutex
-	paymentStripeUpdateCache          = make(map[string]updateCache)
-	paymentStripeUpsertCacheMut       sync.RWMutex
-	paymentStripeUpsertCache          = make(map[string]insertCache)
+	customerType                 = reflect.TypeOf(&Customer{})
+	customerMapping              = queries.MakeStructMapping(customerType)
+	customerPrimaryKeyMapping, _ = queries.BindMapping(customerType, customerMapping, customerPrimaryKeyColumns)
+	customerInsertCacheMut       sync.RWMutex
+	customerInsertCache          = make(map[string]insertCache)
+	customerUpdateCacheMut       sync.RWMutex
+	customerUpdateCache          = make(map[string]updateCache)
+	customerUpsertCacheMut       sync.RWMutex
+	customerUpsertCache          = make(map[string]insertCache)
 )
 
 var (
@@ -198,27 +205,27 @@ var (
 	_ = qmhelper.Where
 )
 
-var paymentStripeAfterSelectHooks []PaymentStripeHook
+var customerAfterSelectHooks []CustomerHook
 
-var paymentStripeBeforeInsertHooks []PaymentStripeHook
-var paymentStripeAfterInsertHooks []PaymentStripeHook
+var customerBeforeInsertHooks []CustomerHook
+var customerAfterInsertHooks []CustomerHook
 
-var paymentStripeBeforeUpdateHooks []PaymentStripeHook
-var paymentStripeAfterUpdateHooks []PaymentStripeHook
+var customerBeforeUpdateHooks []CustomerHook
+var customerAfterUpdateHooks []CustomerHook
 
-var paymentStripeBeforeDeleteHooks []PaymentStripeHook
-var paymentStripeAfterDeleteHooks []PaymentStripeHook
+var customerBeforeDeleteHooks []CustomerHook
+var customerAfterDeleteHooks []CustomerHook
 
-var paymentStripeBeforeUpsertHooks []PaymentStripeHook
-var paymentStripeAfterUpsertHooks []PaymentStripeHook
+var customerBeforeUpsertHooks []CustomerHook
+var customerAfterUpsertHooks []CustomerHook
 
 // doAfterSelectHooks executes all "after Select" hooks.
-func (o *PaymentStripe) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeAfterSelectHooks {
+	for _, hook := range customerAfterSelectHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -228,12 +235,12 @@ func (o *PaymentStripe) doAfterSelectHooks(ctx context.Context, exec boil.Contex
 }
 
 // doBeforeInsertHooks executes all "before insert" hooks.
-func (o *PaymentStripe) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeBeforeInsertHooks {
+	for _, hook := range customerBeforeInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -243,12 +250,12 @@ func (o *PaymentStripe) doBeforeInsertHooks(ctx context.Context, exec boil.Conte
 }
 
 // doAfterInsertHooks executes all "after Insert" hooks.
-func (o *PaymentStripe) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeAfterInsertHooks {
+	for _, hook := range customerAfterInsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -258,12 +265,12 @@ func (o *PaymentStripe) doAfterInsertHooks(ctx context.Context, exec boil.Contex
 }
 
 // doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *PaymentStripe) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeBeforeUpdateHooks {
+	for _, hook := range customerBeforeUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -273,12 +280,12 @@ func (o *PaymentStripe) doBeforeUpdateHooks(ctx context.Context, exec boil.Conte
 }
 
 // doAfterUpdateHooks executes all "after Update" hooks.
-func (o *PaymentStripe) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeAfterUpdateHooks {
+	for _, hook := range customerAfterUpdateHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -288,12 +295,12 @@ func (o *PaymentStripe) doAfterUpdateHooks(ctx context.Context, exec boil.Contex
 }
 
 // doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *PaymentStripe) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeBeforeDeleteHooks {
+	for _, hook := range customerBeforeDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -303,12 +310,12 @@ func (o *PaymentStripe) doBeforeDeleteHooks(ctx context.Context, exec boil.Conte
 }
 
 // doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *PaymentStripe) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeAfterDeleteHooks {
+	for _, hook := range customerAfterDeleteHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -318,12 +325,12 @@ func (o *PaymentStripe) doAfterDeleteHooks(ctx context.Context, exec boil.Contex
 }
 
 // doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *PaymentStripe) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeBeforeUpsertHooks {
+	for _, hook := range customerBeforeUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -333,12 +340,12 @@ func (o *PaymentStripe) doBeforeUpsertHooks(ctx context.Context, exec boil.Conte
 }
 
 // doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *PaymentStripe) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (o *Customer) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	if boil.HooksAreSkipped(ctx) {
 		return nil
 	}
 
-	for _, hook := range paymentStripeAfterUpsertHooks {
+	for _, hook := range customerAfterUpsertHooks {
 		if err := hook(ctx, exec, o); err != nil {
 			return err
 		}
@@ -347,33 +354,33 @@ func (o *PaymentStripe) doAfterUpsertHooks(ctx context.Context, exec boil.Contex
 	return nil
 }
 
-// AddPaymentStripeHook registers your hook function for all future operations.
-func AddPaymentStripeHook(hookPoint boil.HookPoint, paymentStripeHook PaymentStripeHook) {
+// AddCustomerHook registers your hook function for all future operations.
+func AddCustomerHook(hookPoint boil.HookPoint, customerHook CustomerHook) {
 	switch hookPoint {
 	case boil.AfterSelectHook:
-		paymentStripeAfterSelectHooks = append(paymentStripeAfterSelectHooks, paymentStripeHook)
+		customerAfterSelectHooks = append(customerAfterSelectHooks, customerHook)
 	case boil.BeforeInsertHook:
-		paymentStripeBeforeInsertHooks = append(paymentStripeBeforeInsertHooks, paymentStripeHook)
+		customerBeforeInsertHooks = append(customerBeforeInsertHooks, customerHook)
 	case boil.AfterInsertHook:
-		paymentStripeAfterInsertHooks = append(paymentStripeAfterInsertHooks, paymentStripeHook)
+		customerAfterInsertHooks = append(customerAfterInsertHooks, customerHook)
 	case boil.BeforeUpdateHook:
-		paymentStripeBeforeUpdateHooks = append(paymentStripeBeforeUpdateHooks, paymentStripeHook)
+		customerBeforeUpdateHooks = append(customerBeforeUpdateHooks, customerHook)
 	case boil.AfterUpdateHook:
-		paymentStripeAfterUpdateHooks = append(paymentStripeAfterUpdateHooks, paymentStripeHook)
+		customerAfterUpdateHooks = append(customerAfterUpdateHooks, customerHook)
 	case boil.BeforeDeleteHook:
-		paymentStripeBeforeDeleteHooks = append(paymentStripeBeforeDeleteHooks, paymentStripeHook)
+		customerBeforeDeleteHooks = append(customerBeforeDeleteHooks, customerHook)
 	case boil.AfterDeleteHook:
-		paymentStripeAfterDeleteHooks = append(paymentStripeAfterDeleteHooks, paymentStripeHook)
+		customerAfterDeleteHooks = append(customerAfterDeleteHooks, customerHook)
 	case boil.BeforeUpsertHook:
-		paymentStripeBeforeUpsertHooks = append(paymentStripeBeforeUpsertHooks, paymentStripeHook)
+		customerBeforeUpsertHooks = append(customerBeforeUpsertHooks, customerHook)
 	case boil.AfterUpsertHook:
-		paymentStripeAfterUpsertHooks = append(paymentStripeAfterUpsertHooks, paymentStripeHook)
+		customerAfterUpsertHooks = append(customerAfterUpsertHooks, customerHook)
 	}
 }
 
-// One returns a single paymentStripe record from the query.
-func (q paymentStripeQuery) One(ctx context.Context, exec boil.ContextExecutor) (*PaymentStripe, error) {
-	o := &PaymentStripe{}
+// One returns a single customer record from the query.
+func (q customerQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Customer, error) {
+	o := &Customer{}
 
 	queries.SetLimit(q.Query, 1)
 
@@ -382,7 +389,7 @@ func (q paymentStripeQuery) One(ctx context.Context, exec boil.ContextExecutor) 
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: failed to execute a one query for payment_stripe")
+		return nil, errors.Wrap(err, "models: failed to execute a one query for customers")
 	}
 
 	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
@@ -392,16 +399,16 @@ func (q paymentStripeQuery) One(ctx context.Context, exec boil.ContextExecutor) 
 	return o, nil
 }
 
-// All returns all PaymentStripe records from the query.
-func (q paymentStripeQuery) All(ctx context.Context, exec boil.ContextExecutor) (PaymentStripeSlice, error) {
-	var o []*PaymentStripe
+// All returns all Customer records from the query.
+func (q customerQuery) All(ctx context.Context, exec boil.ContextExecutor) (CustomerSlice, error) {
+	var o []*Customer
 
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
-		return nil, errors.Wrap(err, "models: failed to assign all query results to PaymentStripe slice")
+		return nil, errors.Wrap(err, "models: failed to assign all query results to Customer slice")
 	}
 
-	if len(paymentStripeAfterSelectHooks) != 0 {
+	if len(customerAfterSelectHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
 				return o, err
@@ -412,8 +419,8 @@ func (q paymentStripeQuery) All(ctx context.Context, exec boil.ContextExecutor) 
 	return o, nil
 }
 
-// Count returns the count of all PaymentStripe records in the query.
-func (q paymentStripeQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+// Count returns the count of all Customer records in the query.
+func (q customerQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -421,14 +428,14 @@ func (q paymentStripeQuery) Count(ctx context.Context, exec boil.ContextExecutor
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to count payment_stripe rows")
+		return 0, errors.Wrap(err, "models: failed to count customers rows")
 	}
 
 	return count, nil
 }
 
 // Exists checks if the row exists in the table.
-func (q paymentStripeQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
+func (q customerQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
 	var count int64
 
 	queries.SetSelect(q.Query, nil)
@@ -437,58 +444,58 @@ func (q paymentStripeQuery) Exists(ctx context.Context, exec boil.ContextExecuto
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "models: failed to check if payment_stripe exists")
+		return false, errors.Wrap(err, "models: failed to check if customers exists")
 	}
 
 	return count > 0, nil
 }
 
-// PaymentStripes retrieves all the records using an executor.
-func PaymentStripes(mods ...qm.QueryMod) paymentStripeQuery {
-	mods = append(mods, qm.From("\"payment_stripe\""))
+// Customers retrieves all the records using an executor.
+func Customers(mods ...qm.QueryMod) customerQuery {
+	mods = append(mods, qm.From("\"customers\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
-		queries.SetSelect(q, []string{"\"payment_stripe\".*"})
+		queries.SetSelect(q, []string{"\"customers\".*"})
 	}
 
-	return paymentStripeQuery{q}
+	return customerQuery{q}
 }
 
-// FindPaymentStripe retrieves a single record by ID with an executor.
+// FindCustomer retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindPaymentStripe(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*PaymentStripe, error) {
-	paymentStripeObj := &PaymentStripe{}
+func FindCustomer(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*Customer, error) {
+	customerObj := &Customer{}
 
 	sel := "*"
 	if len(selectCols) > 0 {
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"payment_stripe\" where \"id\"=$1", sel,
+		"select %s from \"customers\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
 
-	err := q.Bind(ctx, exec, paymentStripeObj)
+	err := q.Bind(ctx, exec, customerObj)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: unable to select from payment_stripe")
+		return nil, errors.Wrap(err, "models: unable to select from customers")
 	}
 
-	if err = paymentStripeObj.doAfterSelectHooks(ctx, exec); err != nil {
-		return paymentStripeObj, err
+	if err = customerObj.doAfterSelectHooks(ctx, exec); err != nil {
+		return customerObj, err
 	}
 
-	return paymentStripeObj, nil
+	return customerObj, nil
 }
 
 // Insert a single record using an executor.
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
-func (o *PaymentStripe) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
+func (o *Customer) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no payment_stripe provided for insertion")
+		return errors.New("models: no customers provided for insertion")
 	}
 
 	var err error
@@ -507,33 +514,33 @@ func (o *PaymentStripe) Insert(ctx context.Context, exec boil.ContextExecutor, c
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(paymentStripeColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(customerColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
-	paymentStripeInsertCacheMut.RLock()
-	cache, cached := paymentStripeInsertCache[key]
-	paymentStripeInsertCacheMut.RUnlock()
+	customerInsertCacheMut.RLock()
+	cache, cached := customerInsertCache[key]
+	customerInsertCacheMut.RUnlock()
 
 	if !cached {
 		wl, returnColumns := columns.InsertColumnSet(
-			paymentStripeAllColumns,
-			paymentStripeColumnsWithDefault,
-			paymentStripeColumnsWithoutDefault,
+			customerAllColumns,
+			customerColumnsWithDefault,
+			customerColumnsWithoutDefault,
 			nzDefaults,
 		)
 
-		cache.valueMapping, err = queries.BindMapping(paymentStripeType, paymentStripeMapping, wl)
+		cache.valueMapping, err = queries.BindMapping(customerType, customerMapping, wl)
 		if err != nil {
 			return err
 		}
-		cache.retMapping, err = queries.BindMapping(paymentStripeType, paymentStripeMapping, returnColumns)
+		cache.retMapping, err = queries.BindMapping(customerType, customerMapping, returnColumns)
 		if err != nil {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"payment_stripe\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"customers\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"payment_stripe\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"customers\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -561,22 +568,22 @@ func (o *PaymentStripe) Insert(ctx context.Context, exec boil.ContextExecutor, c
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "models: unable to insert into payment_stripe")
+		return errors.Wrap(err, "models: unable to insert into customers")
 	}
 
 	if !cached {
-		paymentStripeInsertCacheMut.Lock()
-		paymentStripeInsertCache[key] = cache
-		paymentStripeInsertCacheMut.Unlock()
+		customerInsertCacheMut.Lock()
+		customerInsertCache[key] = cache
+		customerInsertCacheMut.Unlock()
 	}
 
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
-// Update uses an executor to update the PaymentStripe.
+// Update uses an executor to update the Customer.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
-func (o *PaymentStripe) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+func (o *Customer) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
@@ -588,28 +595,28 @@ func (o *PaymentStripe) Update(ctx context.Context, exec boil.ContextExecutor, c
 		return 0, err
 	}
 	key := makeCacheKey(columns, nil)
-	paymentStripeUpdateCacheMut.RLock()
-	cache, cached := paymentStripeUpdateCache[key]
-	paymentStripeUpdateCacheMut.RUnlock()
+	customerUpdateCacheMut.RLock()
+	cache, cached := customerUpdateCache[key]
+	customerUpdateCacheMut.RUnlock()
 
 	if !cached {
 		wl := columns.UpdateColumnSet(
-			paymentStripeAllColumns,
-			paymentStripePrimaryKeyColumns,
+			customerAllColumns,
+			customerPrimaryKeyColumns,
 		)
 
 		if !columns.IsWhitelist() {
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("models: unable to update payment_stripe, could not build whitelist")
+			return 0, errors.New("models: unable to update customers, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"payment_stripe\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"customers\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
-			strmangle.WhereClause("\"", "\"", len(wl)+1, paymentStripePrimaryKeyColumns),
+			strmangle.WhereClause("\"", "\"", len(wl)+1, customerPrimaryKeyColumns),
 		)
-		cache.valueMapping, err = queries.BindMapping(paymentStripeType, paymentStripeMapping, append(wl, paymentStripePrimaryKeyColumns...))
+		cache.valueMapping, err = queries.BindMapping(customerType, customerMapping, append(wl, customerPrimaryKeyColumns...))
 		if err != nil {
 			return 0, err
 		}
@@ -625,42 +632,42 @@ func (o *PaymentStripe) Update(ctx context.Context, exec boil.ContextExecutor, c
 	var result sql.Result
 	result, err = exec.ExecContext(ctx, cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update payment_stripe row")
+		return 0, errors.Wrap(err, "models: unable to update customers row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by update for payment_stripe")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by update for customers")
 	}
 
 	if !cached {
-		paymentStripeUpdateCacheMut.Lock()
-		paymentStripeUpdateCache[key] = cache
-		paymentStripeUpdateCacheMut.Unlock()
+		customerUpdateCacheMut.Lock()
+		customerUpdateCache[key] = cache
+		customerUpdateCacheMut.Unlock()
 	}
 
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
 // UpdateAll updates all rows with the specified column values.
-func (q paymentStripeQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (q customerQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all for payment_stripe")
+		return 0, errors.Wrap(err, "models: unable to update all for customers")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for payment_stripe")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for customers")
 	}
 
 	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
-func (o PaymentStripeSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
+func (o CustomerSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	ln := int64(len(o))
 	if ln == 0 {
 		return 0, nil
@@ -682,13 +689,13 @@ func (o PaymentStripeSlice) UpdateAll(ctx context.Context, exec boil.ContextExec
 
 	// Append all of the primary key values for each column
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), paymentStripePrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), customerPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"payment_stripe\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"customers\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, paymentStripePrimaryKeyColumns, len(o)))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, customerPrimaryKeyColumns, len(o)))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -697,21 +704,21 @@ func (o PaymentStripeSlice) UpdateAll(ctx context.Context, exec boil.ContextExec
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all in paymentStripe slice")
+		return 0, errors.Wrap(err, "models: unable to update all in customer slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all paymentStripe")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all customer")
 	}
 	return rowsAff, nil
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
-func (o *PaymentStripe) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+func (o *Customer) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no payment_stripe provided for upsert")
+		return errors.New("models: no customers provided for upsert")
 	}
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
@@ -726,7 +733,7 @@ func (o *PaymentStripe) Upsert(ctx context.Context, exec boil.ContextExecutor, u
 		return err
 	}
 
-	nzDefaults := queries.NonZeroDefaultSet(paymentStripeColumnsWithDefault, o)
+	nzDefaults := queries.NonZeroDefaultSet(customerColumnsWithDefault, o)
 
 	// Build cache key in-line uglily - mysql vs psql problems
 	buf := strmangle.GetBuffer()
@@ -756,42 +763,42 @@ func (o *PaymentStripe) Upsert(ctx context.Context, exec boil.ContextExecutor, u
 	key := buf.String()
 	strmangle.PutBuffer(buf)
 
-	paymentStripeUpsertCacheMut.RLock()
-	cache, cached := paymentStripeUpsertCache[key]
-	paymentStripeUpsertCacheMut.RUnlock()
+	customerUpsertCacheMut.RLock()
+	cache, cached := customerUpsertCache[key]
+	customerUpsertCacheMut.RUnlock()
 
 	var err error
 
 	if !cached {
 		insert, ret := insertColumns.InsertColumnSet(
-			paymentStripeAllColumns,
-			paymentStripeColumnsWithDefault,
-			paymentStripeColumnsWithoutDefault,
+			customerAllColumns,
+			customerColumnsWithDefault,
+			customerColumnsWithoutDefault,
 			nzDefaults,
 		)
 
 		update := updateColumns.UpdateColumnSet(
-			paymentStripeAllColumns,
-			paymentStripePrimaryKeyColumns,
+			customerAllColumns,
+			customerPrimaryKeyColumns,
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("models: unable to upsert payment_stripe, could not build update column list")
+			return errors.New("models: unable to upsert customers, could not build update column list")
 		}
 
 		conflict := conflictColumns
 		if len(conflict) == 0 {
-			conflict = make([]string, len(paymentStripePrimaryKeyColumns))
-			copy(conflict, paymentStripePrimaryKeyColumns)
+			conflict = make([]string, len(customerPrimaryKeyColumns))
+			copy(conflict, customerPrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQueryPostgres(dialect, "\"payment_stripe\"", updateOnConflict, ret, update, conflict, insert)
+		cache.query = buildUpsertQueryPostgres(dialect, "\"customers\"", updateOnConflict, ret, update, conflict, insert)
 
-		cache.valueMapping, err = queries.BindMapping(paymentStripeType, paymentStripeMapping, insert)
+		cache.valueMapping, err = queries.BindMapping(customerType, customerMapping, insert)
 		if err != nil {
 			return err
 		}
 		if len(ret) != 0 {
-			cache.retMapping, err = queries.BindMapping(paymentStripeType, paymentStripeMapping, ret)
+			cache.retMapping, err = queries.BindMapping(customerType, customerMapping, ret)
 			if err != nil {
 				return err
 			}
@@ -819,31 +826,31 @@ func (o *PaymentStripe) Upsert(ctx context.Context, exec boil.ContextExecutor, u
 		_, err = exec.ExecContext(ctx, cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "models: unable to upsert payment_stripe")
+		return errors.Wrap(err, "models: unable to upsert customers")
 	}
 
 	if !cached {
-		paymentStripeUpsertCacheMut.Lock()
-		paymentStripeUpsertCache[key] = cache
-		paymentStripeUpsertCacheMut.Unlock()
+		customerUpsertCacheMut.Lock()
+		customerUpsertCache[key] = cache
+		customerUpsertCacheMut.Unlock()
 	}
 
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
-// Delete deletes a single PaymentStripe record with an executor.
+// Delete deletes a single Customer record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *PaymentStripe) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *Customer) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
-		return 0, errors.New("models: no PaymentStripe provided for delete")
+		return 0, errors.New("models: no Customer provided for delete")
 	}
 
 	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), paymentStripePrimaryKeyMapping)
-	sql := "DELETE FROM \"payment_stripe\" WHERE \"id\"=$1"
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), customerPrimaryKeyMapping)
+	sql := "DELETE FROM \"customers\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -852,12 +859,12 @@ func (o *PaymentStripe) Delete(ctx context.Context, exec boil.ContextExecutor) (
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete from payment_stripe")
+		return 0, errors.Wrap(err, "models: unable to delete from customers")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for payment_stripe")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for customers")
 	}
 
 	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
@@ -868,33 +875,33 @@ func (o *PaymentStripe) Delete(ctx context.Context, exec boil.ContextExecutor) (
 }
 
 // DeleteAll deletes all matching rows.
-func (q paymentStripeQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q customerQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
-		return 0, errors.New("models: no paymentStripeQuery provided for delete all")
+		return 0, errors.New("models: no customerQuery provided for delete all")
 	}
 
 	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from payment_stripe")
+		return 0, errors.Wrap(err, "models: unable to delete all from customers")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for payment_stripe")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for customers")
 	}
 
 	return rowsAff, nil
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o PaymentStripeSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o CustomerSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
 
-	if len(paymentStripeBeforeDeleteHooks) != 0 {
+	if len(customerBeforeDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -904,12 +911,12 @@ func (o PaymentStripeSlice) DeleteAll(ctx context.Context, exec boil.ContextExec
 
 	var args []interface{}
 	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), paymentStripePrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), customerPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "DELETE FROM \"payment_stripe\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, paymentStripePrimaryKeyColumns, len(o))
+	sql := "DELETE FROM \"customers\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, customerPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -918,15 +925,15 @@ func (o PaymentStripeSlice) DeleteAll(ctx context.Context, exec boil.ContextExec
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from paymentStripe slice")
+		return 0, errors.Wrap(err, "models: unable to delete all from customer slice")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for payment_stripe")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for customers")
 	}
 
-	if len(paymentStripeAfterDeleteHooks) != 0 {
+	if len(customerAfterDeleteHooks) != 0 {
 		for _, obj := range o {
 			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
 				return 0, err
@@ -939,8 +946,8 @@ func (o PaymentStripeSlice) DeleteAll(ctx context.Context, exec boil.ContextExec
 
 // Reload refetches the object from the database
 // using the primary keys with an executor.
-func (o *PaymentStripe) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindPaymentStripe(ctx, exec, o.ID)
+func (o *Customer) Reload(ctx context.Context, exec boil.ContextExecutor) error {
+	ret, err := FindCustomer(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -951,26 +958,26 @@ func (o *PaymentStripe) Reload(ctx context.Context, exec boil.ContextExecutor) e
 
 // ReloadAll refetches every row with matching primary key column values
 // and overwrites the original object slice with the newly updated slice.
-func (o *PaymentStripeSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
+func (o *CustomerSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) error {
 	if o == nil || len(*o) == 0 {
 		return nil
 	}
 
-	slice := PaymentStripeSlice{}
+	slice := CustomerSlice{}
 	var args []interface{}
 	for _, obj := range *o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), paymentStripePrimaryKeyMapping)
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), customerPrimaryKeyMapping)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"payment_stripe\".* FROM \"payment_stripe\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, paymentStripePrimaryKeyColumns, len(*o))
+	sql := "SELECT \"customers\".* FROM \"customers\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, customerPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
 	err := q.Bind(ctx, exec, &slice)
 	if err != nil {
-		return errors.Wrap(err, "models: unable to reload all in PaymentStripeSlice")
+		return errors.Wrap(err, "models: unable to reload all in CustomerSlice")
 	}
 
 	*o = slice
@@ -978,10 +985,10 @@ func (o *PaymentStripeSlice) ReloadAll(ctx context.Context, exec boil.ContextExe
 	return nil
 }
 
-// PaymentStripeExists checks if the PaymentStripe row exists.
-func PaymentStripeExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
+// CustomerExists checks if the Customer row exists.
+func CustomerExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"payment_stripe\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"customers\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -992,13 +999,13 @@ func PaymentStripeExists(ctx context.Context, exec boil.ContextExecutor, iD int6
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "models: unable to check if payment_stripe exists")
+		return false, errors.Wrap(err, "models: unable to check if customers exists")
 	}
 
 	return exists, nil
 }
 
-// Exists checks if the PaymentStripe row exists.
-func (o *PaymentStripe) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	return PaymentStripeExists(ctx, exec, o.ID)
+// Exists checks if the Customer row exists.
+func (o *Customer) Exists(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
+	return CustomerExists(ctx, exec, o.ID)
 }

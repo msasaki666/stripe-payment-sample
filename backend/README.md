@@ -17,4 +17,6 @@ migrate -database postgres://postgres:postgres@db:5432/app_database?sslmode=disa
 sqlboiler psql
 # 生成されたテストを実行
 go test ./models
+# seedデータ作成用コード生成
+boilingseed psql --sqlboiler-models github.com/msasaki666/backend/models
 ```
