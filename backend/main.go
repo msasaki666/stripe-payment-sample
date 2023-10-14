@@ -18,7 +18,7 @@ import (
 )
 
 type config struct {
-	StripeKey       string `env:"STRIPE_KEY"`
+	StripeApiKey    string `env:"STRIPE_API_KEY"`
 	FrontEndBaseURL string `env:"FRONT_END_BASE_URL"`
 }
 
@@ -41,7 +41,7 @@ func main() {
 			}
 		}
 	}
-	stripe.Key = cfg.StripeKey
+	stripe.Key = cfg.StripeApiKey
 
 	db, err := sql.Open("postgres", "host=db port=5432 user=postgres password=postgres dbname=app_database sslmode=disable")
 	if err != nil {
