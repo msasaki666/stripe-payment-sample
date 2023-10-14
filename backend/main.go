@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/caarlos0/env/v9"
 	_ "github.com/lib/pq"
@@ -17,7 +18,8 @@ import (
 )
 
 type config struct {
-	StripeKey string `env:"STRIPE_KEY"`
+	StripeKey       string `env:"STRIPE_KEY"`
+	FrontEndBaseURL string `env:"FRONT_END_BASE_URL"`
 }
 
 func main() {
@@ -59,31 +61,55 @@ func main() {
 		}
 		return c.JSONPretty(http.StatusOK, p, "  ")
 	})
-	e.POST("/create-checkout-session", createCheckoutSession)
+	e.POST("/create-checkout-session", generateCreateCheckoutSessionHandler(&cfg))
 	e.Any("/webhook", echo.WrapHandler(http.HandlerFunc(handleWebhook)))
 	e.Logger.Fatal(e.Start(":1323"))
 }
 
-func createCheckoutSession(c echo.Context) (err error) {
+func generateCreateCheckoutSessionHandler(cfg *config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		s, err := createCheckoutSession(cfg, "price_1NveyfAj9ehS6HaZQ1SPdae2", calcQuwntity())
+
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusSeeOther, s.URL)
+	}
+}
+
+func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*stripe.CheckoutSession, error) {
+	successURL, err := url.JoinPath(cfg.FrontEndBaseURL, "success")
+	if err != nil {
+		return nil, err
+	}
+	cancelURL, err := url.JoinPath(cfg.FrontEndBaseURL, "cancel")
+	if err != nil {
+		return nil, err
+	}
 	params := &stripe.CheckoutSessionParams{
 		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
 				// 料金IDを指定することで、既存の商品のセッションを開始できる
-				Price:    stripe.String("price_1NveyfAj9ehS6HaZQ1SPdae2"),
-				Quantity: stripe.Int64(1),
+				Price:    stripe.String(stripePriceID),
+				Quantity: stripe.Int64(quantity),
 			},
 		},
-		SuccessURL: stripe.String("http://localhost:3000/success"),
-		CancelURL:  stripe.String("http://localhost:3000/cancel"),
+		SuccessURL: stripe.String(successURL),
+		CancelURL:  stripe.String(cancelURL),
 		Locale:     stripe.String("auto"),
 	}
 
-	s, _ := session.New(params)
+	s, err := session.New(params)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return c.Redirect(http.StatusSeeOther, s.URL)
+	return s, nil
+}
+
+func calcQuwntity() int64 {
+	return 1
 }
