@@ -67,16 +67,25 @@ func main() {
 			c.Logger().Error(err)
 			return err
 		}
-		return c.JSONPretty(http.StatusOK, p, "  ")
+		return c.JSON(http.StatusOK, p)
 	})
-	e.POST("/create-checkout-session", generateCreateCheckoutSessionHandler(&cfg))
+	e.GET("/products", handleGetProducts)
+	e.POST("/products/create-checkout-session", generateCreateCheckoutSessionHandler(&cfg))
 	e.Any("/webhook", echo.WrapHandler(http.HandlerFunc(handleWebhook)))
 	e.Logger.Fatal(e.Start(":1323"))
 }
 
+type createCheckoutSessionHandlerParams struct {
+	StripePriceID string `form:"stripe_price_id"`
+}
+
 func generateCreateCheckoutSessionHandler(cfg *config) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		s, err := createCheckoutSession(cfg, "price_1NveyfAj9ehS6HaZQ1SPdae2", calcQuwntity())
+		p := createCheckoutSessionHandlerParams{}
+		if err := c.Bind(&p); err != nil {
+			return err
+		}
+		s, err := createCheckoutSession(cfg, p.StripePriceID, calcQuwntity())
 
 		if err != nil {
 			return err
@@ -95,6 +104,7 @@ func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*
 	if err != nil {
 		return nil, err
 	}
+	// TODO: cusomer idがnullの場合は、Stripeの顧客を作成し、保存する
 	params := &stripe.CheckoutSessionParams{
 		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
@@ -104,6 +114,8 @@ func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*
 				Quantity: stripe.Int64(quantity),
 			},
 		},
+		// TODO: 追加する。ユーザーモデルから取得する
+		// Customer:  stripe.String("cus_J0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z"),
 		SuccessURL: stripe.String(successURL),
 		CancelURL:  stripe.String(cancelURL),
 		Locale:     stripe.String("auto"),
@@ -120,4 +132,28 @@ func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*
 
 func calcQuwntity() int64 {
 	return 1
+}
+
+type ProductSample struct {
+	ID            int64  `json:"id"`
+	Name          string `json:"name"`
+	StripePriceID string `json:"stripe_price_id"`
+}
+
+func handleGetProducts(c echo.Context) error {
+	// TODO: レコード例
+	products := []ProductSample{
+		{
+			ID:            1,
+			Name:          "ドロップイン",
+			StripePriceID: "price_1NveyfAj9ehS6HaZQ1SPdae2",
+		},
+		{
+			ID:            2,
+			Name:          "スタンダードプラン",
+			StripePriceID: "price_1NvfOfAj9ehS6HaZXMIwK6do",
+		},
+	}
+
+	return c.JSON(http.StatusOK, products)
 }
