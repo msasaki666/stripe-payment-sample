@@ -13,13 +13,16 @@ import (
 	"github.com/stripe/stripe-go/v75/checkout/session"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/msasaki666/backend/internal/renv"
 	"github.com/msasaki666/backend/models"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type config struct {
-	StripeApiKey    string `env:"STRIPE_API_KEY"`
-	FrontEndBaseURL string `env:"FRONT_END_BASE_URL"`
+	StripeApiKey    string           `env:"STRIPE_API_KEY"`
+	FrontEndBaseURL string           `env:"FRONT_END_BASE_URL"`
+	GoEnv           renv.Environment `env:"GO_ENV"`
 }
 
 func main() {
@@ -50,6 +53,11 @@ func main() {
 
 	boil.SetDB(db)
 	e := echo.New()
+	corsConfig, err := createCorsConfig(&cfg)
+	if err != nil {
+		panic(err.Error())
+	}
+	e.Use(middleware.CORSWithConfig(corsConfig))
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
