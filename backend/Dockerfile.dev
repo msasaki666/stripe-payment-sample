@@ -12,17 +12,6 @@ RUN curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/publ
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-# Install Golang extensions and tools
-# for golang extension
-RUN go install github.com/ramya-rao-a/go-outline@latest && \
-  go install golang.org/x/tools/gopls@latest && \
-  go install golang.org/x/tools/cmd/goimports@latest && \
-  go install honnef.co/go/tools/cmd/staticcheck@latest && \
-  go install github.com/cosmtrek/air@latest && \
-  go install github.com/go-delve/delve/cmd/dlv@latest && \
-  go install github.com/volatiletech/sqlboiler/v4@latest && \
-  go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
-
 # Install migrate tool
 RUN mkdir golang-migrate-tmp-dir && \
   curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz -C golang-migrate-tmp-dir && \

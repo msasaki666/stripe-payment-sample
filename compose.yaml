@@ -1,5 +1,7 @@
 volumes:
   db-data:
+  go-mod-cache:
+  go-cache:
 
 
 services:
@@ -23,6 +25,8 @@ services:
       - "1323:1323"
     volumes:
       - .:/app
+      - go-mod-cache:/go/pkg/mod
+      - go-cache:/root/.cache/go-build
     working_dir: /app/backend
     command: tail -f /dev/null
     env_file:

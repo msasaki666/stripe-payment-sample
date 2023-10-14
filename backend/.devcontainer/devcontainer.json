@@ -37,5 +37,7 @@
       ]
     }
   },
-  "postCreateCommand": "./login_to_stripe.sh"
+  // NOTE: postCreateCommandでは拡張機能のインストールに間に合わないようだったのでonCreateCommandに変更している
+  "onCreateCommand": "./.devcontainer/install_go_tools.sh",
+  "postCreateCommand": "./.devcontainer/login_to_stripe.sh"
 }
