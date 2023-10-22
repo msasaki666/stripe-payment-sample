@@ -10,6 +10,8 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("SchemaMigrations", testSchemaMigrationsUpsert)
 
+	t.Run("StripeOrderItems", testStripeOrderItemsUpsert)
+
 	t.Run("StripePrices", testStripePricesUpsert)
 
 	t.Run("StripeProducts", testStripeProductsUpsert)

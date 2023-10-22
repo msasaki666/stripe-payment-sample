@@ -3,7 +3,7 @@ CREATE TABLE customers (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     ip_uid TEXT NOT NULL,
-    stripe_customer_id TEXT NOT NULL
+    id_on_stripe TEXT NOT NULL
 );
 
 CREATE TABLE stripe_products (
@@ -32,3 +32,12 @@ CREATE TABLE stripe_recurrings (
     interval_count SMALLINT NOT NULL,
     stripe_price_id BIGINT NOT NULL
 );
+
+CREATE TABLE stripe_order_items (
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    stripe_price_id BIGINT NOT NULL
+);
+
+-- add constraint

@@ -6,12 +6,14 @@ package models
 var TableNames = struct {
 	Customers        string
 	SchemaMigrations string
+	StripeOrderItems string
 	StripePrices     string
 	StripeProducts   string
 	StripeRecurrings string
 }{
 	Customers:        "customers",
 	SchemaMigrations: "schema_migrations",
+	StripeOrderItems: "stripe_order_items",
 	StripePrices:     "stripe_prices",
 	StripeProducts:   "stripe_products",
 	StripeRecurrings: "stripe_recurrings",

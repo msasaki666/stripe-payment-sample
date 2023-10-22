@@ -14,6 +14,7 @@ import "testing"
 func TestParent(t *testing.T) {
 	t.Run("Customers", testCustomers)
 	t.Run("SchemaMigrations", testSchemaMigrations)
+	t.Run("StripeOrderItems", testStripeOrderItems)
 	t.Run("StripePrices", testStripePrices)
 	t.Run("StripeProducts", testStripeProducts)
 	t.Run("StripeRecurrings", testStripeRecurrings)
@@ -22,6 +23,7 @@ func TestParent(t *testing.T) {
 func TestDelete(t *testing.T) {
 	t.Run("Customers", testCustomersDelete)
 	t.Run("SchemaMigrations", testSchemaMigrationsDelete)
+	t.Run("StripeOrderItems", testStripeOrderItemsDelete)
 	t.Run("StripePrices", testStripePricesDelete)
 	t.Run("StripeProducts", testStripeProductsDelete)
 	t.Run("StripeRecurrings", testStripeRecurringsDelete)
@@ -30,6 +32,7 @@ func TestDelete(t *testing.T) {
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Customers", testCustomersQueryDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsQueryDeleteAll)
+	t.Run("StripeOrderItems", testStripeOrderItemsQueryDeleteAll)
 	t.Run("StripePrices", testStripePricesQueryDeleteAll)
 	t.Run("StripeProducts", testStripeProductsQueryDeleteAll)
 	t.Run("StripeRecurrings", testStripeRecurringsQueryDeleteAll)
@@ -38,6 +41,7 @@ func TestQueryDeleteAll(t *testing.T) {
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Customers", testCustomersSliceDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceDeleteAll)
+	t.Run("StripeOrderItems", testStripeOrderItemsSliceDeleteAll)
 	t.Run("StripePrices", testStripePricesSliceDeleteAll)
 	t.Run("StripeProducts", testStripeProductsSliceDeleteAll)
 	t.Run("StripeRecurrings", testStripeRecurringsSliceDeleteAll)
@@ -46,6 +50,7 @@ func TestSliceDeleteAll(t *testing.T) {
 func TestExists(t *testing.T) {
 	t.Run("Customers", testCustomersExists)
 	t.Run("SchemaMigrations", testSchemaMigrationsExists)
+	t.Run("StripeOrderItems", testStripeOrderItemsExists)
 	t.Run("StripePrices", testStripePricesExists)
 	t.Run("StripeProducts", testStripeProductsExists)
 	t.Run("StripeRecurrings", testStripeRecurringsExists)
@@ -54,6 +59,7 @@ func TestExists(t *testing.T) {
 func TestFind(t *testing.T) {
 	t.Run("Customers", testCustomersFind)
 	t.Run("SchemaMigrations", testSchemaMigrationsFind)
+	t.Run("StripeOrderItems", testStripeOrderItemsFind)
 	t.Run("StripePrices", testStripePricesFind)
 	t.Run("StripeProducts", testStripeProductsFind)
 	t.Run("StripeRecurrings", testStripeRecurringsFind)
@@ -62,6 +68,7 @@ func TestFind(t *testing.T) {
 func TestBind(t *testing.T) {
 	t.Run("Customers", testCustomersBind)
 	t.Run("SchemaMigrations", testSchemaMigrationsBind)
+	t.Run("StripeOrderItems", testStripeOrderItemsBind)
 	t.Run("StripePrices", testStripePricesBind)
 	t.Run("StripeProducts", testStripeProductsBind)
 	t.Run("StripeRecurrings", testStripeRecurringsBind)
@@ -70,6 +77,7 @@ func TestBind(t *testing.T) {
 func TestOne(t *testing.T) {
 	t.Run("Customers", testCustomersOne)
 	t.Run("SchemaMigrations", testSchemaMigrationsOne)
+	t.Run("StripeOrderItems", testStripeOrderItemsOne)
 	t.Run("StripePrices", testStripePricesOne)
 	t.Run("StripeProducts", testStripeProductsOne)
 	t.Run("StripeRecurrings", testStripeRecurringsOne)
@@ -78,6 +86,7 @@ func TestOne(t *testing.T) {
 func TestAll(t *testing.T) {
 	t.Run("Customers", testCustomersAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsAll)
+	t.Run("StripeOrderItems", testStripeOrderItemsAll)
 	t.Run("StripePrices", testStripePricesAll)
 	t.Run("StripeProducts", testStripeProductsAll)
 	t.Run("StripeRecurrings", testStripeRecurringsAll)
@@ -86,6 +95,7 @@ func TestAll(t *testing.T) {
 func TestCount(t *testing.T) {
 	t.Run("Customers", testCustomersCount)
 	t.Run("SchemaMigrations", testSchemaMigrationsCount)
+	t.Run("StripeOrderItems", testStripeOrderItemsCount)
 	t.Run("StripePrices", testStripePricesCount)
 	t.Run("StripeProducts", testStripeProductsCount)
 	t.Run("StripeRecurrings", testStripeRecurringsCount)
@@ -94,6 +104,7 @@ func TestCount(t *testing.T) {
 func TestHooks(t *testing.T) {
 	t.Run("Customers", testCustomersHooks)
 	t.Run("SchemaMigrations", testSchemaMigrationsHooks)
+	t.Run("StripeOrderItems", testStripeOrderItemsHooks)
 	t.Run("StripePrices", testStripePricesHooks)
 	t.Run("StripeProducts", testStripeProductsHooks)
 	t.Run("StripeRecurrings", testStripeRecurringsHooks)
@@ -104,6 +115,8 @@ func TestInsert(t *testing.T) {
 	t.Run("Customers", testCustomersInsertWhitelist)
 	t.Run("SchemaMigrations", testSchemaMigrationsInsert)
 	t.Run("SchemaMigrations", testSchemaMigrationsInsertWhitelist)
+	t.Run("StripeOrderItems", testStripeOrderItemsInsert)
+	t.Run("StripeOrderItems", testStripeOrderItemsInsertWhitelist)
 	t.Run("StripePrices", testStripePricesInsert)
 	t.Run("StripePrices", testStripePricesInsertWhitelist)
 	t.Run("StripeProducts", testStripeProductsInsert)
@@ -155,6 +168,7 @@ func TestToManyRemove(t *testing.T) {}
 func TestReload(t *testing.T) {
 	t.Run("Customers", testCustomersReload)
 	t.Run("SchemaMigrations", testSchemaMigrationsReload)
+	t.Run("StripeOrderItems", testStripeOrderItemsReload)
 	t.Run("StripePrices", testStripePricesReload)
 	t.Run("StripeProducts", testStripeProductsReload)
 	t.Run("StripeRecurrings", testStripeRecurringsReload)
@@ -163,6 +177,7 @@ func TestReload(t *testing.T) {
 func TestReloadAll(t *testing.T) {
 	t.Run("Customers", testCustomersReloadAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsReloadAll)
+	t.Run("StripeOrderItems", testStripeOrderItemsReloadAll)
 	t.Run("StripePrices", testStripePricesReloadAll)
 	t.Run("StripeProducts", testStripeProductsReloadAll)
 	t.Run("StripeRecurrings", testStripeRecurringsReloadAll)
@@ -171,6 +186,7 @@ func TestReloadAll(t *testing.T) {
 func TestSelect(t *testing.T) {
 	t.Run("Customers", testCustomersSelect)
 	t.Run("SchemaMigrations", testSchemaMigrationsSelect)
+	t.Run("StripeOrderItems", testStripeOrderItemsSelect)
 	t.Run("StripePrices", testStripePricesSelect)
 	t.Run("StripeProducts", testStripeProductsSelect)
 	t.Run("StripeRecurrings", testStripeRecurringsSelect)
@@ -179,6 +195,7 @@ func TestSelect(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	t.Run("Customers", testCustomersUpdate)
 	t.Run("SchemaMigrations", testSchemaMigrationsUpdate)
+	t.Run("StripeOrderItems", testStripeOrderItemsUpdate)
 	t.Run("StripePrices", testStripePricesUpdate)
 	t.Run("StripeProducts", testStripeProductsUpdate)
 	t.Run("StripeRecurrings", testStripeRecurringsUpdate)
@@ -187,6 +204,7 @@ func TestUpdate(t *testing.T) {
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Customers", testCustomersSliceUpdateAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceUpdateAll)
+	t.Run("StripeOrderItems", testStripeOrderItemsSliceUpdateAll)
 	t.Run("StripePrices", testStripePricesSliceUpdateAll)
 	t.Run("StripeProducts", testStripeProductsSliceUpdateAll)
 	t.Run("StripeRecurrings", testStripeRecurringsSliceUpdateAll)

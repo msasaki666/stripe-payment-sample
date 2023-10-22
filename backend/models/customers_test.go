@@ -568,7 +568,7 @@ func testCustomersSelect(t *testing.T) {
 }
 
 var (
-	customerDBTypes = map[string]string{`ID`: `bigint`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `IPUID`: `text`, `StripeCustomerID`: `text`}
+	customerDBTypes = map[string]string{`ID`: `bigint`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `IPUID`: `text`, `IDOnStripe`: `text`}
 	_               = bytes.MinRead
 )
 

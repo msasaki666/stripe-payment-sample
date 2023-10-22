@@ -23,42 +23,42 @@ import (
 
 // Customer is an object representing the database table.
 type Customer struct {
-	ID               int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CreatedAt        time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt        time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	IPUID            string    `boil:"ip_uid" json:"ip_uid" toml:"ip_uid" yaml:"ip_uid"`
-	StripeCustomerID string    `boil:"stripe_customer_id" json:"stripe_customer_id" toml:"stripe_customer_id" yaml:"stripe_customer_id"`
+	ID         int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CreatedAt  time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt  time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	IPUID      string    `boil:"ip_uid" json:"ip_uid" toml:"ip_uid" yaml:"ip_uid"`
+	IDOnStripe string    `boil:"id_on_stripe" json:"id_on_stripe" toml:"id_on_stripe" yaml:"id_on_stripe"`
 
 	R *customerR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L customerL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var CustomerColumns = struct {
-	ID               string
-	CreatedAt        string
-	UpdatedAt        string
-	IPUID            string
-	StripeCustomerID string
+	ID         string
+	CreatedAt  string
+	UpdatedAt  string
+	IPUID      string
+	IDOnStripe string
 }{
-	ID:               "id",
-	CreatedAt:        "created_at",
-	UpdatedAt:        "updated_at",
-	IPUID:            "ip_uid",
-	StripeCustomerID: "stripe_customer_id",
+	ID:         "id",
+	CreatedAt:  "created_at",
+	UpdatedAt:  "updated_at",
+	IPUID:      "ip_uid",
+	IDOnStripe: "id_on_stripe",
 }
 
 var CustomerTableColumns = struct {
-	ID               string
-	CreatedAt        string
-	UpdatedAt        string
-	IPUID            string
-	StripeCustomerID string
+	ID         string
+	CreatedAt  string
+	UpdatedAt  string
+	IPUID      string
+	IDOnStripe string
 }{
-	ID:               "customers.id",
-	CreatedAt:        "customers.created_at",
-	UpdatedAt:        "customers.updated_at",
-	IPUID:            "customers.ip_uid",
-	StripeCustomerID: "customers.stripe_customer_id",
+	ID:         "customers.id",
+	CreatedAt:  "customers.created_at",
+	UpdatedAt:  "customers.updated_at",
+	IPUID:      "customers.ip_uid",
+	IDOnStripe: "customers.id_on_stripe",
 }
 
 // Generated where
@@ -135,17 +135,17 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 }
 
 var CustomerWhere = struct {
-	ID               whereHelperint64
-	CreatedAt        whereHelpertime_Time
-	UpdatedAt        whereHelpertime_Time
-	IPUID            whereHelperstring
-	StripeCustomerID whereHelperstring
+	ID         whereHelperint64
+	CreatedAt  whereHelpertime_Time
+	UpdatedAt  whereHelpertime_Time
+	IPUID      whereHelperstring
+	IDOnStripe whereHelperstring
 }{
-	ID:               whereHelperint64{field: "\"customers\".\"id\""},
-	CreatedAt:        whereHelpertime_Time{field: "\"customers\".\"created_at\""},
-	UpdatedAt:        whereHelpertime_Time{field: "\"customers\".\"updated_at\""},
-	IPUID:            whereHelperstring{field: "\"customers\".\"ip_uid\""},
-	StripeCustomerID: whereHelperstring{field: "\"customers\".\"stripe_customer_id\""},
+	ID:         whereHelperint64{field: "\"customers\".\"id\""},
+	CreatedAt:  whereHelpertime_Time{field: "\"customers\".\"created_at\""},
+	UpdatedAt:  whereHelpertime_Time{field: "\"customers\".\"updated_at\""},
+	IPUID:      whereHelperstring{field: "\"customers\".\"ip_uid\""},
+	IDOnStripe: whereHelperstring{field: "\"customers\".\"id_on_stripe\""},
 }
 
 // CustomerRels is where relationship names are stored.
@@ -165,8 +165,8 @@ func (*customerR) NewStruct() *customerR {
 type customerL struct{}
 
 var (
-	customerAllColumns            = []string{"id", "created_at", "updated_at", "ip_uid", "stripe_customer_id"}
-	customerColumnsWithoutDefault = []string{"created_at", "updated_at", "ip_uid", "stripe_customer_id"}
+	customerAllColumns            = []string{"id", "created_at", "updated_at", "ip_uid", "id_on_stripe"}
+	customerColumnsWithoutDefault = []string{"created_at", "updated_at", "ip_uid", "id_on_stripe"}
 	customerColumnsWithDefault    = []string{"id"}
 	customerPrimaryKeyColumns     = []string{"id"}
 	customerGeneratedColumns      = []string{}
