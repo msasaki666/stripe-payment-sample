@@ -1,3 +1,5 @@
+wipe = true
+
 [psql]
 dbname = "app_database"
 host = "db"
