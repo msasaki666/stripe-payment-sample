@@ -41,3 +41,8 @@ CREATE TABLE stripe_order_items (
 );
 
 -- add constraint
+
+ALTER TABLE stripe_prices
+ADD CONSTRAINT fk_stripe_prices_stripe_products
+FOREIGN KEY (stripe_product_id)
+REFERENCES stripe_products (id);

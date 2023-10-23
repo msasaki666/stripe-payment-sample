@@ -494,6 +494,125 @@ func testStripePricesInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testStripePriceToOneStripeProductUsingStripeProduct(t *testing.T) {
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var local StripePrice
+	var foreign StripeProduct
+
+	seed := randomize.NewSeed()
+	if err := randomize.Struct(seed, &local, stripePriceDBTypes, false, stripePriceColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize StripePrice struct: %s", err)
+	}
+	if err := randomize.Struct(seed, &foreign, stripeProductDBTypes, false, stripeProductColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize StripeProduct struct: %s", err)
+	}
+
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	local.StripeProductID = foreign.ID
+	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := local.StripeProduct().One(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if check.ID != foreign.ID {
+		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
+	}
+
+	ranAfterSelectHook := false
+	AddStripeProductHook(boil.AfterSelectHook, func(ctx context.Context, e boil.ContextExecutor, o *StripeProduct) error {
+		ranAfterSelectHook = true
+		return nil
+	})
+
+	slice := StripePriceSlice{&local}
+	if err = local.L.LoadStripeProduct(ctx, tx, false, (*[]*StripePrice)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.StripeProduct == nil {
+		t.Error("struct should have been eager loaded")
+	}
+
+	local.R.StripeProduct = nil
+	if err = local.L.LoadStripeProduct(ctx, tx, true, &local, nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.StripeProduct == nil {
+		t.Error("struct should have been eager loaded")
+	}
+
+	if !ranAfterSelectHook {
+		t.Error("failed to run AfterSelect hook for relationship")
+	}
+}
+
+func testStripePriceToOneSetOpStripeProductUsingStripeProduct(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a StripePrice
+	var b, c StripeProduct
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, stripePriceDBTypes, false, strmangle.SetComplement(stripePricePrimaryKeyColumns, stripePriceColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, stripeProductDBTypes, false, strmangle.SetComplement(stripeProductPrimaryKeyColumns, stripeProductColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, stripeProductDBTypes, false, strmangle.SetComplement(stripeProductPrimaryKeyColumns, stripeProductColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*StripeProduct{&b, &c} {
+		err = a.SetStripeProduct(ctx, tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if a.R.StripeProduct != x {
+			t.Error("relationship struct not set to correct value")
+		}
+
+		if x.R.StripePrices[0] != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+		if a.StripeProductID != x.ID {
+			t.Error("foreign key was wrong value", a.StripeProductID)
+		}
+
+		zero := reflect.Zero(reflect.TypeOf(a.StripeProductID))
+		reflect.Indirect(reflect.ValueOf(&a.StripeProductID)).Set(zero)
+
+		if err = a.Reload(ctx, tx); err != nil {
+			t.Fatal("failed to reload", err)
+		}
+
+		if a.StripeProductID != x.ID {
+			t.Error("foreign key was wrong value", a.StripeProductID, x.ID)
+		}
+	}
+}
+
 func testStripePricesReload(t *testing.T) {
 	t.Parallel()
 

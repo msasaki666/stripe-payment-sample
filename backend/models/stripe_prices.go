@@ -86,15 +86,26 @@ var StripePriceWhere = struct {
 
 // StripePriceRels is where relationship names are stored.
 var StripePriceRels = struct {
-}{}
+	StripeProduct string
+}{
+	StripeProduct: "StripeProduct",
+}
 
 // stripePriceR is where relationships are stored.
 type stripePriceR struct {
+	StripeProduct *StripeProduct `boil:"StripeProduct" json:"StripeProduct" toml:"StripeProduct" yaml:"StripeProduct"`
 }
 
 // NewStruct creates a new relationship struct
 func (*stripePriceR) NewStruct() *stripePriceR {
 	return &stripePriceR{}
+}
+
+func (r *stripePriceR) GetStripeProduct() *StripeProduct {
+	if r == nil {
+		return nil
+	}
+	return r.StripeProduct
 }
 
 // stripePriceL is where Load methods for each relationship are stored.
@@ -384,6 +395,184 @@ func (q stripePriceQuery) Exists(ctx context.Context, exec boil.ContextExecutor)
 	}
 
 	return count > 0, nil
+}
+
+// StripeProduct pointed to by the foreign key.
+func (o *StripePrice) StripeProduct(mods ...qm.QueryMod) stripeProductQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.StripeProductID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return StripeProducts(queryMods...)
+}
+
+// LoadStripeProduct allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (stripePriceL) LoadStripeProduct(ctx context.Context, e boil.ContextExecutor, singular bool, maybeStripePrice interface{}, mods queries.Applicator) error {
+	var slice []*StripePrice
+	var object *StripePrice
+
+	if singular {
+		var ok bool
+		object, ok = maybeStripePrice.(*StripePrice)
+		if !ok {
+			object = new(StripePrice)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeStripePrice)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeStripePrice))
+			}
+		}
+	} else {
+		s, ok := maybeStripePrice.(*[]*StripePrice)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeStripePrice)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeStripePrice))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &stripePriceR{}
+		}
+		args = append(args, object.StripeProductID)
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &stripePriceR{}
+			}
+
+			for _, a := range args {
+				if a == obj.StripeProductID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.StripeProductID)
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`stripe_products`),
+		qm.WhereIn(`stripe_products.id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load StripeProduct")
+	}
+
+	var resultSlice []*StripeProduct
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice StripeProduct")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for stripe_products")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for stripe_products")
+	}
+
+	if len(stripeProductAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.StripeProduct = foreign
+		if foreign.R == nil {
+			foreign.R = &stripeProductR{}
+		}
+		foreign.R.StripePrices = append(foreign.R.StripePrices, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.StripeProductID == foreign.ID {
+				local.R.StripeProduct = foreign
+				if foreign.R == nil {
+					foreign.R = &stripeProductR{}
+				}
+				foreign.R.StripePrices = append(foreign.R.StripePrices, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// SetStripeProduct of the stripePrice to the related item.
+// Sets o.R.StripeProduct to related.
+// Adds o to related.R.StripePrices.
+func (o *StripePrice) SetStripeProduct(ctx context.Context, exec boil.ContextExecutor, insert bool, related *StripeProduct) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"stripe_prices\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"stripe_product_id"}),
+		strmangle.WhereClause("\"", "\"", 2, stripePricePrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.StripeProductID = related.ID
+	if o.R == nil {
+		o.R = &stripePriceR{
+			StripeProduct: related,
+		}
+	} else {
+		o.R.StripeProduct = related
+	}
+
+	if related.R == nil {
+		related.R = &stripeProductR{
+			StripePrices: StripePriceSlice{o},
+		}
+	} else {
+		related.R.StripePrices = append(related.R.StripePrices, o)
+	}
+
+	return nil
 }
 
 // StripePrices retrieves all the records using an executor.
