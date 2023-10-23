@@ -10,20 +10,24 @@ import (
 
 	"github.com/caarlos0/env/v9"
 	_ "github.com/lib/pq"
-	"github.com/stripe/stripe-go/v75"
-	"github.com/stripe/stripe-go/v75/checkout/session"
+	"github.com/samber/lo"
+	"github.com/stripe/stripe-go/v76"
+	bsession "github.com/stripe/stripe-go/v76/billingportal/session"
+	csession "github.com/stripe/stripe-go/v76/checkout/session"
+	"github.com/stripe/stripe-go/v76/subscription"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/msasaki666/backend/internal/renv"
 	"github.com/msasaki666/backend/models"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type config struct {
 	StripeApiKey    string           `env:"STRIPE_API_KEY"`
 	FrontEndBaseURL string           `env:"FRONT_END_BASE_URL"`
 	GoEnv           renv.Environment `env:"GO_ENV"`
+	DB              *sql.DB
 }
 
 func main() {
@@ -52,7 +56,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	boil.SetDB(db)
+	cfg.DB = db
 	e := echo.New()
 	corsConfig, err := createCorsConfig(&cfg)
 	if err != nil {
@@ -62,16 +66,17 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-	e.GET("/payment_stripes", func(c echo.Context) error {
-		p, err := models.PaymentStripes().All(context.Background(), db)
+	e.GET("/customers", func(c echo.Context) error {
+		customers, err := models.Customers().All(context.Background(), db)
 		if err != nil {
 			c.Logger().Error(err)
 			return err
 		}
-		return c.JSON(http.StatusOK, p)
+		return c.JSON(http.StatusOK, customers)
 	})
-	e.GET("/products", handleGetProducts)
+	e.GET("/products", generateGetProductsHandler(&cfg))
 	e.POST("/products/create-checkout-session", generateCreateCheckoutSessionHandler(&cfg))
+	e.POST("/create-customer-portal-session", generateCreateCustomerPortalSessionHandler(&cfg))
 	e.Any("/webhook", echo.WrapHandler(http.HandlerFunc(handleWebhook)))
 	e.Logger.Fatal(e.Start(":1323"))
 }
@@ -86,14 +91,23 @@ func generateCreateCheckoutSessionHandler(cfg *config) echo.HandlerFunc {
 		if err := c.Bind(&p); err != nil {
 			return err
 		}
+
 		s, err := createCheckoutSession(cfg, p.StripePriceID, calcQuwntity())
 
+		// TODO: 購入済みの時のハンドリング
 		if err != nil {
 			return err
 		}
 
 		return c.Redirect(http.StatusSeeOther, s.URL)
 	}
+}
+
+type alreadyPurachasedError struct {
+}
+
+func (e *alreadyPurachasedError) Error() string {
+	return "already purchased"
 }
 
 func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*stripe.CheckoutSession, error) {
@@ -105,9 +119,36 @@ func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*
 	if err != nil {
 		return nil, err
 	}
+
+	price, err := models.
+		StripePrices(models.StripePriceWhere.IDOnStripe.EQ(stripePriceID)).
+		One(context.Background(), cfg.DB)
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO: cusomer idがnullの場合は、Stripeの顧客を作成し、保存する
+	customer, err := models.Customers().One(context.Background(), cfg.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	// NOTE: 既に購入済みか確認する
+	subscriptions := subscription.List(&stripe.SubscriptionListParams{
+		Customer: stripe.String(customer.IDOnStripe),
+		Price:    stripe.String(stripePriceID),
+	})
+	if subscriptions.Next() {
+		return nil, &alreadyPurachasedError{}
+	}
+
+	sessionType, err := judgeCheckoutSessionType(price.Type)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &stripe.CheckoutSessionParams{
-		Mode: stripe.String(string(stripe.CheckoutSessionModePayment)),
+		Mode: stripe.String(sessionType),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
 				// 料金IDを指定することで、既存の商品のセッションを開始できる
@@ -115,15 +156,14 @@ func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*
 				Quantity: stripe.Int64(quantity),
 			},
 		},
-		// TODO: 追加する。ユーザーモデルから取得する
-		// Customer:  stripe.String("cus_J0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z0Z"),
+		Customer:   stripe.String(customer.IDOnStripe),
 		SuccessURL: stripe.String(successURL),
 		CancelURL:  stripe.String(cancelURL),
 		Locale:     stripe.String("auto"),
 		ExpiresAt:  stripe.Int64(time.Now().Add(30 * time.Minute).Unix()),
 	}
 
-	s, err := session.New(params)
+	s, err := csession.New(params)
 
 	if err != nil {
 		return nil, err
@@ -132,30 +172,70 @@ func createCheckoutSession(cfg *config, stripePriceID string, quantity int64) (*
 	return s, nil
 }
 
+func generateCreateCustomerPortalSessionHandler(cfg *config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		returnURL, err := url.JoinPath(cfg.FrontEndBaseURL, "account")
+		if err != nil {
+			return err
+		}
+
+		// TODO: ログインユーザーから取得する
+		customer, err := models.Customers().One(context.Background(), cfg.DB)
+		if err != nil {
+			return err
+		}
+
+		params := &stripe.BillingPortalSessionParams{
+			Customer:  stripe.String(customer.IDOnStripe),
+			ReturnURL: stripe.String(returnURL),
+		}
+		s, err := bsession.New(params)
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusSeeOther, s.URL)
+	}
+}
+
 func calcQuwntity() int64 {
 	return 1
 }
 
-type ProductSample struct {
-	ID            int64  `json:"id"`
-	Name          string `json:"name"`
-	StripePriceID string `json:"stripe_price_id"`
+func judgeCheckoutSessionType(t string) (string, error) {
+	switch t {
+	case "one_time":
+		return "payment", nil
+	case "recurring":
+		return "subscription", nil
+	default:
+		return "", fmt.Errorf("invalid type: %s", t)
+	}
 }
 
-func handleGetProducts(c echo.Context) error {
-	// TODO: レコード例
-	products := []ProductSample{
-		{
-			ID:            1,
-			Name:          "ドロップイン",
-			StripePriceID: "price_1NveyfAj9ehS6HaZQ1SPdae2",
-		},
-		{
-			ID:            2,
-			Name:          "スタンダードプラン",
-			StripePriceID: "price_1NvfOfAj9ehS6HaZXMIwK6do",
-		},
-	}
+func generateGetProductsHandler(cfg *config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		products, err := models.StripeProducts(
+			qm.Load(models.StripeProductRels.StripePrices),
+		).All(context.Background(), cfg.DB)
+		if err != nil {
+			return err
+		}
+		type ProductsResponse struct {
+			*models.StripeProduct
+			Price *models.StripePrice `json:"price"`
+		}
 
-	return c.JSON(http.StatusOK, products)
+		pr := lo.Map(products, func(p *models.StripeProduct, i int) *ProductsResponse {
+			price, _ := lo.Find(p.R.StripePrices, func(price *models.StripePrice) bool {
+				return price.StripeProductID == p.ID
+			})
+			return &ProductsResponse{
+				StripeProduct: p,
+				Price:         price,
+			}
+		})
+
+		return c.JSON(http.StatusOK, pr)
+	}
 }
