@@ -44,6 +44,8 @@ func handleWebhook(w http.ResponseWriter, req *http.Request) {
 	// checkout.session.completed	Checkout で顧客が「支払う」または「登録」ボタンをクリックすると送信され、新しい購入が通知されます。
 	// invoice.paid	請求期間ごとに、支払いが成功すると送信されます。
 	// invoice.payment_failed	請求期間ごとに、顧客の支払い方法に問題がある場合に送信されます。
+	// billingportal関係のイベント
+	// https://stripe.com/docs/customer-management/integrate-customer-portal#webhooks
 	// TODO: イベントの種類によって処理を変える
 	// checkoutで購入完了した時のイベント
 	// stripe.EventTypeCheckoutSessionCompleted
